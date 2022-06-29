@@ -10,7 +10,7 @@ import (
 )
 
 const defaultSaveFileName = "save.dat"
-const version = "0.2"
+const version = "0.3"
 
 func check(e error) {
 	if e != nil {
