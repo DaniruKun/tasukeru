@@ -11,6 +11,7 @@ import (
 )
 
 const defaultSaveFileName = "save.dat"
+const version = "0.1"
 
 func check(e error) {
 	if e != nil {
@@ -20,21 +21,23 @@ func check(e error) {
 
 func printHeader() {
 	header := `
-	Tasukeru - HoloCure save file importer
-	Made by DaniruKun
+Tasukeru - HoloCure save file importer v%s
+Made by DaniruKun
 
-	- https://github.com/DaniruKun
-	- https://twitter.com/DaniruKun
-	- https://danpetrov.xyz
+- https://github.com/DaniruKun
+- https://twitter.com/DaniruKun
+- https://danpetrov.xyz
 
-	Tasukeru  Copyright (C) 2022  Daniils Petrovs
-	This program comes with ABSOLUTELY NO WARRANTY; for details see the Github link.
-	This is free software, and you are welcome to redistribute it
-	under certain conditions.
+Tasukeru  Copyright (C) 2022  Daniils Petrovs
+This program comes with ABSOLUTELY NO WARRANTY; for details see the Github link.
+This is free software, and you are welcome to redistribute it
+under certain conditions.
 
-	Source code: 
-	`
-	fmt.Print(header)
+Source code: 
+
+I am not affiliated with Cover Corp. or Kay Yu in any way.
+`
+	fmt.Printf(header, version)
 }
 
 func holoCureSaveFilePath() string {
@@ -80,7 +83,7 @@ func main() {
 	start, end = getSettingsStartEnd(&srcDec)
 
 	srcSettingsJson := srcDec[start : end+1]
-	fmt.Println("source settings:", string(srcSettingsJson))
+	fmt.Println("source save:", string(srcSettingsJson))
 
 	var targetFilePath string
 
@@ -101,7 +104,8 @@ func main() {
 		targetDec[start+i] = char
 	}
 
-	fmt.Println("patched settings", string(targetDec))
+	fmt.Println("patched save:", string(targetDec))
+	fmt.Println()
 
 	var confirmed bool = prompter.YN("import new save file? インポートOK？", true)
 
