@@ -3,7 +3,6 @@ package main
 import (
 	b64 "encoding/base64"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 
@@ -17,6 +16,10 @@ func check(e error) {
 	if e != nil {
 		panic(e)
 	}
+}
+
+func waitQuit() {
+	prompter.YN("press Enter to quit", true)
 }
 
 func printHeader() {
@@ -48,7 +51,7 @@ func holoCureSaveFilePath() string {
 
 // generally it seems that the start offset will always be the same
 // across machines, but safer to find save block dynamically
-func getSettingsStartEnd(srcDec *[]byte) (start, end int) {
+func getSaveBlockStartEnd(srcDec *[]byte) (start, end int) {
 	for offset, char := range *srcDec {
 		if char == 0x7B && (*srcDec)[offset+1] == 0x20 {
 			fmt.Println("found save block start at offset", offset)
@@ -68,7 +71,12 @@ func main() {
 
 	if len(args) < 2 {
 		// normally when used as drag n drop on windows, will be exactly 2
-		log.Fatalf("not enough arguments provided")
+		fmt.Println("not enough arguments provided")
+		fmt.Println("did you Drag n Drop the source save file onto tasukeru.exe ?")
+		fmt.Println("do not forget to Drag n Drop the new save.dat onto tasukeru.exe")
+
+		waitQuit()
+		return
 	}
 
 	var start, end int
@@ -82,7 +90,7 @@ func main() {
 	srcDec, err := b64.URLEncoding.DecodeString(string(srcDat))
 	check(err)
 
-	start, end = getSettingsStartEnd(&srcDec)
+	start, end = getSaveBlockStartEnd(&srcDec)
 
 	srcSaveBlock := srcDec[start : end+1]
 	fmt.Println("source save:", string(srcSaveBlock))
@@ -100,7 +108,7 @@ func main() {
 	targetDec, err := b64.URLEncoding.DecodeString(string(targetDat))
 	check(err)
 
-	start, _ = getSettingsStartEnd(&targetDec)
+	start, _ = getSaveBlockStartEnd(&targetDec)
 
 	// iterate over the source save block and overwrite the dst save block with its data
 	for i, char := range srcSaveBlock {
@@ -123,7 +131,7 @@ func main() {
 		err = os.WriteFile(holoCureSaveFilePath(), []byte(targetEnc), 0644)
 		check(err)
 		fmt.Println("save file imported succesfully!")
-		prompter.YN("Press Enter to quit", true)
+		waitQuit()
 	}
 
 }
