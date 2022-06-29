@@ -11,7 +11,7 @@ import (
 )
 
 const defaultSaveFileName = "save.dat"
-const version = "0.1"
+const version = "0.2"
 
 func check(e error) {
 	if e != nil {
@@ -46,6 +46,8 @@ func holoCureSaveFilePath() string {
 	return filepath.Join(dir, "HoloCure", defaultSaveFileName)
 }
 
+// generally it seems that the start offset will always be the same
+// across machines, but safer to find save block dynamically
 func getSettingsStartEnd(srcDec *[]byte) (start, end int) {
 	for offset, char := range *srcDec {
 		if char == 0x7B && (*srcDec)[offset+1] == 0x20 {
@@ -82,8 +84,8 @@ func main() {
 
 	start, end = getSettingsStartEnd(&srcDec)
 
-	srcSettingsJson := srcDec[start : end+1]
-	fmt.Println("source save:", string(srcSettingsJson))
+	srcSaveBlock := srcDec[start : end+1]
+	fmt.Println("source save:", string(srcSaveBlock))
 
 	var targetFilePath string
 
@@ -100,8 +102,15 @@ func main() {
 
 	start, _ = getSettingsStartEnd(&targetDec)
 
-	for i, char := range srcSettingsJson {
-		targetDec[start+i] = char
+	// iterate over the source save block and overwrite the dst save block with its data
+	for i, char := range srcSaveBlock {
+		targetOffset := start + i
+
+		if targetOffset >= len(targetDec) {
+			targetDec = append(targetDec, char)
+		} else {
+			targetDec[targetOffset] = char
+		}
 	}
 
 	fmt.Println("patched save:", string(targetDec))
@@ -114,6 +123,7 @@ func main() {
 		err = os.WriteFile(holoCureSaveFilePath(), []byte(targetEnc), 0644)
 		check(err)
 		fmt.Println("save file imported succesfully!")
+		prompter.YN("Press Enter to quit", true)
 	}
 
 }
