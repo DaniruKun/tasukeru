@@ -10,7 +10,7 @@ import (
 )
 
 const defaultSaveFileName = "save.dat"
-const version = "0.3"
+const version = "0.4"
 
 func check(e error) {
 	if e != nil {
@@ -29,14 +29,13 @@ Made by DaniruKun
 
 - https://github.com/DaniruKun
 - https://twitter.com/DaniruKun
-- https://danpetrov.xyz
 
 Tasukeru  Copyright (C) 2022  Daniils Petrovs
 This program comes with ABSOLUTELY NO WARRANTY; for details see the Github link.
 This is free software, and you are welcome to redistribute it
 under certain conditions.
 
-Source code: 
+Website: https://danpetrov.xyz/tasukeru
 
 I am not affiliated with Cover Corp. or Kay Yu in any way.
 `
@@ -54,11 +53,9 @@ func holoCureSaveFilePath() string {
 func getSaveBlockStartEnd(srcDec *[]byte) (start, end int) {
 	for offset, char := range *srcDec {
 		if char == 0x7B && (*srcDec)[offset+1] == 0x20 {
-			fmt.Println("found save block start at offset", offset)
 			start = offset
 		}
 		if char == 0x7D && (*srcDec)[offset+1] == 0x00 {
-			fmt.Println("found save block end at offset", offset)
 			end = offset
 		}
 	}
@@ -76,7 +73,7 @@ func main() {
 		fmt.Println("do not forget to Drag n Drop the new save.dat onto tasukeru.exe")
 
 		waitQuit()
-		return
+		os.Exit(1)
 	}
 
 	var start, end int
@@ -93,7 +90,6 @@ func main() {
 	start, end = getSaveBlockStartEnd(&srcDec)
 
 	srcSaveBlock := srcDec[start : end+1]
-	fmt.Println("source save:", string(srcSaveBlock))
 
 	var targetFilePath string
 
@@ -133,5 +129,4 @@ func main() {
 		fmt.Println("save file imported succesfully!")
 		waitQuit()
 	}
-
 }
