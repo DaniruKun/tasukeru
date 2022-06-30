@@ -10,7 +10,7 @@ import (
 )
 
 const defaultSaveFileName = "save.dat"
-const version = "0.4"
+const version = "0.5"
 
 func check(e error) {
 	if e != nil {
@@ -24,6 +24,8 @@ func waitQuit() {
 
 func printHeader() {
 	header := `
+💀 🐔 🐙 🔱 🔎 💎 🪐 🪶 ⏳ 🌿 🎲
+
 Tasukeru - HoloCure save file importer v%s
 Made by DaniruKun
 
