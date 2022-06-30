@@ -117,7 +117,7 @@ func main() {
 		}
 	}
 
-	fmt.Println("patched save:", string(targetDec))
+	// fmt.Println("patched save:", string(targetDec))
 	fmt.Println()
 
 	var confirmed bool = prompter.YN("import new save file? インポートOK？", true)
