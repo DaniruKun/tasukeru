@@ -10,7 +10,7 @@ import (
 )
 
 const defaultSaveFileName = "save.dat"
-const version = "0.5"
+const version = "1.0"
 
 func check(e error) {
 	if e != nil {
@@ -126,7 +126,7 @@ func main() {
 
 	if confirmed {
 		targetEnc := b64.URLEncoding.EncodeToString(targetDec)
-		err = os.WriteFile(holoCureSaveFilePath(), []byte(targetEnc), 0644)
+		err = os.WriteFile(targetFilePath, []byte(targetEnc), 0644)
 		check(err)
 		fmt.Println("save file imported succesfully!")
 		waitQuit()

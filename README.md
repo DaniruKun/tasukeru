@@ -15,3 +15,23 @@ Pick the executable matching your architecture (note: HoloCure currently only ru
 4. On the target PC, drag and drop the `save.dat` onto `tasukeru-*.exe`
 5. When prompted, press `Enter`
 6. The save should now be imported
+
+## Advanced
+
+You can manually call the executable and pass arguments directly.
+
+If you pass a **single argument**, then `saveA.dat` will be merged into the `save.dat` found in the system's HoloCure cache directory (e.g. `Local\HoloCure\save.dat`).
+
+This is equivalent to drag n dropping the `saveA.dat` on top of the executable.
+
+E.g. `tasukeru-windows-amd64.exe saveA.dat`
+
+If you pass **2 arguments**, then `saveA.dat` will be merged into `save.dat` or whatever path is given and replace it.
+
+E.g. `tasukeru-windows-amd64.exe saveA.dat save.dat` will produce the patched `save.dat` in the current directory.
+
+On Unix systems you can quickly inspect a save file with
+
+```sh
+base64 --decode -i save.dat`
+```
