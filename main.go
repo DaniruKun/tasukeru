@@ -59,17 +59,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	var start, end int
 	var sourceSaveFilePath, targetSaveFilePath string
 
 	sourceSaveFilePath = args[1]
-	fmt.Println("reading origin save file", sourceSaveFilePath)
-
-	srcDec, err := holocure.DecodeSaveFile(sourceSaveFilePath)
-	check(err)
-
-	start, end = holocure.FindSaveBlockStartEnd(&srcDec)
-	srcSaveBlock := srcDec[start : end+1]
 
 	if len(args) == 3 {
 		targetSaveFilePath = args[2]
@@ -77,21 +69,7 @@ func main() {
 		targetSaveFilePath = holocure.SaveFilePath()
 	}
 
-	targetDec, err := holocure.DecodeSaveFile(targetSaveFilePath)
-	check(err)
-
-	start, _ = holocure.FindSaveBlockStartEnd(&targetDec)
-
-	// iterate over the source save block and overwrite the dst save block with its data
-	for i, char := range srcSaveBlock {
-		targetOffset := start + i
-
-		if targetOffset >= len(targetDec) {
-			targetDec = append(targetDec, char)
-		} else {
-			targetDec[targetOffset] = char
-		}
-	}
+	targetDec := holocure.MergeSaves(sourceSaveFilePath, targetSaveFilePath)
 
 	// fmt.Println("patched save:", string(targetDec))
 	fmt.Println()
@@ -99,7 +77,7 @@ func main() {
 	var confirmed bool = prompter.YN("import new save file? インポートOK？", true)
 
 	if confirmed {
-		err = holocure.WriteSaveFile(targetSaveFilePath, targetDec)
+		err := holocure.WriteSaveFile(targetSaveFilePath, targetDec)
 		check(err)
 		fmt.Println("save file imported succesfully!")
 		waitQuit()

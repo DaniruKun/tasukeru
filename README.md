@@ -33,5 +33,5 @@ E.g. `tasukeru-windows-amd64.exe saveA.dat save.dat` will produce the patched `s
 On Unix systems you can quickly inspect a save file with
 
 ```sh
-base64 --decode -i save.dat`
+base64 --decode -i save.dat
 ```

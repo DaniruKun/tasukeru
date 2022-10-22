@@ -2,6 +2,7 @@ package holocure
 
 import (
 	b64 "encoding/base64"
+	"fmt"
 	"os"
 	"path/filepath"
 )
@@ -22,7 +23,7 @@ func FindSaveBlockStartEnd(data *[]byte) (start, end int) {
 		if char == 0x7B && (*data)[offset+1] == 0x20 {
 			start = offset
 		}
-		if char == 0x7D && (*data)[offset+1] == 0x00 {
+		if char == 0x7D && (*data)[offset-1] == 0x20 {
 			end = offset
 		}
 	}
@@ -43,6 +44,35 @@ func DecodeSaveFile(filePath string) ([]byte, error) {
 func WriteSaveFile(filePath string, data []byte) error {
 	targetEnc := b64.URLEncoding.EncodeToString(data)
 	return os.WriteFile(filePath, []byte(targetEnc), 0644)
+}
+
+// Merges the source save file path into the target one.
+// Returns the raw bytes of the patches save.
+func MergeSaves(sourceSaveFilePath, targetSaveFilePath string) []byte {
+	fmt.Println("reading origin save file", sourceSaveFilePath)
+	srcDec, err := DecodeSaveFile(sourceSaveFilePath)
+	check(err)
+	var start, end int
+
+	start, end = FindSaveBlockStartEnd(&srcDec)
+	srcSaveBlock := srcDec[start : end+1]
+
+	targetDec, err := DecodeSaveFile(targetSaveFilePath)
+	check(err)
+
+	start, _ = FindSaveBlockStartEnd(&targetDec)
+
+	// iterate over the source save block and overwrite the dst save block with its data
+	for i, char := range srcSaveBlock {
+		targetOffset := start + i
+
+		if targetOffset >= len(targetDec) {
+			targetDec = append(targetDec, char)
+		} else {
+			targetDec[targetOffset] = char
+		}
+	}
+	return targetDec
 }
 
 func check(e error) {
