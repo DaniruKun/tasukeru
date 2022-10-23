@@ -1,5 +1,7 @@
 # HoloCure Save File Transfer Tool
 
+![Tasukeru GUI demo](https://i.imgur.com/HDohzzB.png)
+
 This is a small tool to import [HoloCure](https://kay-yu.itch.io/holocure) save files from one PC to another.
 
 ## Download
@@ -9,12 +11,33 @@ Pick the executable matching your architecture (note: HoloCure currently only ru
 
 ## Usage
 
-1. Build a release by running `make` or download a release for your platform from [Releases](https://github.com/DaniruKun/tasukeru/releases)
-2. Get the save file from the source PC at `Users\[your username]\AppData\Local\HoloCure\save.dat` and move it to the target PC
-3. Play HoloCure **at least once** one the target PC
-4. On the target PC, drag and drop the `save.dat` onto `tasukeru-*.exe`
-5. When prompted, press `Enter`
+1. Get the save file from the source PC at `Users\[your username]\AppData\Local\HoloCure\save.dat` and move it to the target PC
+2. Play HoloCure **at least once** one the target PC
+3. Launch `Tasukeru.exe`
+4. Open the save file you want to import
+5. Press `Import`
 6. The save should now be imported
+
+## Build
+
+There are 2 build options: as a GUI app, and as a CLI:
+
+### GUI
+
+Install [fyne-cross](https://github.com/fyne-io/fyne-cross).
+Then run
+
+```shell
+make compile-windows
+```
+
+### CLI
+
+```shell
+make compile-cli
+```
+
+This will produce binaries for each platform in the `bin` directory.
 
 ## Advanced
 
@@ -33,5 +56,5 @@ E.g. `tasukeru-windows-amd64.exe saveA.dat save.dat` will produce the patched `s
 On Unix systems you can quickly inspect a save file with
 
 ```sh
-base64 --decode -i save.dat`
+base64 --decode -i save.dat
 ```
