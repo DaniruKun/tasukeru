@@ -2,7 +2,6 @@ package main
 
 import (
 	"io"
-	"log"
 	"net/url"
 
 	"fyne.io/fyne"
@@ -45,7 +44,6 @@ func RunGUI() {
 				return
 			}
 			if reader == nil {
-				log.Println("Cancelled")
 				return
 			}
 
@@ -67,12 +65,15 @@ func RunGUI() {
 	aboutUrl, err := url.Parse(HomePage)
 	check(err)
 	aboutHyperLink := widget.NewHyperlink("About", aboutUrl)
+	aboutHyperLink.Alignment = fyne.TextAlignTrailing
+	versionLabel := widget.NewLabelWithStyle("Version "+Version, fyne.TextAlignTrailing, fyne.TextStyle{Monospace: true})
 
 	box := container.NewVBox(
 		openFileButtonLabel,
 		openFileButton,
 		confirmButton,
 		aboutHyperLink,
+		versionLabel,
 	)
 
 	w.SetContent(box)

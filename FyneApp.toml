@@ -1,8 +1,8 @@
 Website = "https://danpetrov.xyz/tasukeru"
 
 [Details]
-Icon = "Icon.png"
-Name = "Tasukeru"
-ID = "com.tasukeru.app"
-Version = "1.1.0"
-Build = 1
+  Icon = "Tasukeru.png"
+  Name = "Tasukeru"
+  ID = "com.tasukeru.app"
+  Version = "1.1.0"
+  Build = 17
