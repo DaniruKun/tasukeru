@@ -8,7 +8,8 @@ import (
 	"github.com/Songmu/prompter"
 )
 
-const version = "1.0"
+const Version = "1.1.0"
+const HomePage = "https://danpetrov.xyz/tasukeru"
 
 func check(e error) {
 	if e != nil {
@@ -35,30 +36,26 @@ This program comes with ABSOLUTELY NO WARRANTY; for details see the Github link.
 This is free software, and you are welcome to redistribute it
 under certain conditions.
 
-Website: https://danpetrov.xyz/tasukeru
+Website: %s
 
 I am not affiliated with Cover Corp. or Kay Yu in any way.
 `
-	fmt.Printf(header, version)
+	fmt.Printf(header, Version, HomePage)
 }
 
 func main() {
-	printHeader()
 	args := os.Args
 
 	if len(args) < 2 {
-
 		// Run the UI
-
-		// normally when used as drag n drop on windows, will be exactly 2
-		fmt.Println("not enough arguments provided")
-		fmt.Println("did you Drag n Drop the source save file onto tasukeru.exe ?")
-		fmt.Println("do not forget to Drag n Drop the new save.dat onto tasukeru.exe")
-
-		waitQuit()
-		os.Exit(1)
+		RunGUI()
+	} else {
+		CLI(args)
 	}
+}
 
+func CLI(args []string) {
+	printHeader()
 	var sourceSaveFilePath, targetSaveFilePath string
 
 	sourceSaveFilePath = args[1]
@@ -71,7 +68,6 @@ func main() {
 
 	targetDec := holocure.MergeSaves(sourceSaveFilePath, targetSaveFilePath)
 
-	// fmt.Println("patched save:", string(targetDec))
 	fmt.Println()
 
 	var confirmed bool = prompter.YN("import new save file? インポートOK？", true)
