@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"io"
 	"net/url"
 
@@ -14,30 +15,38 @@ import (
 	"github.com/DaniruKun/tasukeru/holocure"
 )
 
+var (
+	srcDec, targetDec              []byte
+	sourceFilePath, targetFilePath string
+	fileFilter                     = storage.NewExtensionFileFilter([]string{".dat"})
+	fileBrowserSize                = fyne.NewSize(1000, 800)
+)
+
 // Starts a blocking event loop of the GUI.
 func RunGUI() {
 	a := app.New()
 	w := a.NewWindow("Tasukeru")
 	w.Resize(fyne.NewSize(800, 600))
 
-	var srcDec []byte
-
-	targetSaveFilePath := holocure.SaveFilePath()
-
 	confirmButton := widget.NewButtonWithIcon("Import", theme.ConfirmIcon(), func() {
-		targetDec := mergeFiles(srcDec, targetSaveFilePath)
-		err := holocure.WriteSaveFile(targetSaveFilePath, targetDec)
+		if srcDec == nil || targetDec == nil {
+			dialog.ShowError(errors.New("missing data"), w)
+			return
+		}
+		targetDec = holocure.MergeSaveDataDecoded(srcDec, targetDec)
+		err := holocure.WriteSaveFile(targetFilePath, targetDec)
 		if err != nil {
 			dialog.ShowError(err, w)
 			return
 		}
-		dialog.NewInformation("Result", "Save imported successfully!", w).Show()
+		dialog.ShowInformation("Result", "Save imported successfully!", w)
 	})
+
 	confirmButton.Hide()
 
-	openFileButtonLabel := widget.NewLabel("Select save file to import")
-	openFileButtonLabel.Alignment = fyne.TextAlignCenter
-	openFileButton := widget.NewButton("Open file", func() {
+	openSourceFileButtonLabel := widget.NewLabel("Select save file to import")
+	openSourceFileButtonLabel.Alignment = fyne.TextAlignCenter
+	openSourceFileButton := widget.NewButtonWithIcon("Browse source file", theme.FileIcon(), func() {
 		fd := dialog.NewFileOpen(func(reader fyne.URIReadCloser, err error) {
 			if err != nil {
 				dialog.ShowError(err, w)
@@ -47,20 +56,59 @@ func RunGUI() {
 				return
 			}
 
+			u, _ := url.ParseRequestURI(reader.URI().String())
+			sourceFilePath = u.Path
+
 			srcDec, err = holocure.Decode(loadFile(reader))
 			if err != nil {
 				dialog.ShowError(err, w)
 				return
 			}
 
+			openSourceFileButtonLabel.SetText("Selected source file: " + sourceFilePath)
+
 			confirmButton.Show()
 		}, w)
 
-		fd.SetFilter(storage.NewExtensionFileFilter([]string{".dat"}))
-		fd.Resize(fyne.NewSize(1000, 800))
+		fd.SetFilter(fileFilter)
+		fd.Resize(fileBrowserSize)
 		fd.Show()
 	})
-	openFileButton.Icon = theme.FileIcon()
+
+	openTargetFileButtonLabel := widget.NewLabel("Select target file to merge into")
+	openTargetFileButtonLabel.Alignment = fyne.TextAlignCenter
+	openTargetFileButton := widget.NewButtonWithIcon("Browse target file", theme.FileIcon(), func() {
+		fd := dialog.NewFileOpen(func(reader fyne.URIReadCloser, err error) {
+			if err != nil {
+				dialog.ShowError(err, w)
+				return
+			}
+			if reader == nil {
+				return
+			}
+
+			u, _ := url.ParseRequestURI(reader.URI().String())
+			targetFilePath = u.Path
+
+			targetDec, err = holocure.Decode(loadFile(reader))
+			if err != nil {
+				dialog.ShowError(err, w)
+				return
+			}
+
+			openTargetFileButtonLabel.SetText("Selected target file: " + targetFilePath)
+		}, w)
+
+		fd.SetFilter(fileFilter)
+		fd.Resize(fileBrowserSize)
+		fd.Show()
+	})
+
+	if holocure.DefaultSaveFileExists() {
+		targetFilePath = holocure.SaveFilePath()
+		targetDec, _ = holocure.DecodeSaveFile(targetFilePath)
+		openTargetFileButtonLabel.SetText("Override default save file: " + targetFilePath)
+	}
 
 	aboutUrl, err := url.Parse(HomePage)
 	check(err)
@@ -69,8 +117,10 @@ func RunGUI() {
 	versionLabel := widget.NewLabelWithStyle("Version "+Version, fyne.TextAlignTrailing, fyne.TextStyle{Monospace: true})
 
 	box := container.NewVBox(
-		openFileButtonLabel,
-		openFileButton,
+		openSourceFileButtonLabel,
+		openSourceFileButton,
+		openTargetFileButtonLabel,
+		openTargetFileButton,
 		confirmButton,
 		aboutHyperLink,
 		versionLabel,
@@ -87,28 +137,4 @@ func loadFile(f fyne.URIReadCloser) []byte {
 		return nil
 	}
 	return data
-}
-
-func mergeFiles(srcDec []byte, targetSaveFilePath string) []byte {
-	var start, end int
-
-	start, end = holocure.FindSaveBlockStartEnd(&srcDec)
-	srcSaveBlock := srcDec[start : end+1]
-
-	targetDec, err := holocure.DecodeSaveFile(targetSaveFilePath)
-	check(err)
-
-	start, _ = holocure.FindSaveBlockStartEnd(&targetDec)
-
-	for i, char := range srcSaveBlock {
-		targetOffset := start + i
-
-		if targetOffset >= len(targetDec) {
-			targetDec = append(targetDec, char)
-		} else {
-			targetDec[targetOffset] = char
-		}
-	}
-
-	return targetDec
 }

@@ -16,6 +16,12 @@ func SaveFilePath() string {
 	return filepath.Join(dir, "HoloCure", defaultSaveFileName)
 }
 
+// Returns truthy if the default save file does not exist yet
+func DefaultSaveFileExists() bool {
+	_, err := os.Stat(SaveFilePath())
+	return err == nil
+}
+
 // It seems that the start offset will always be the same
 // across machines, but safer to find save block dynamically
 func FindSaveBlockStartEnd(data *[]byte) (start, end int) {
@@ -73,6 +79,24 @@ func MergeSaves(sourceSaveFilePath, targetSaveFilePath string) []byte {
 		}
 	}
 	return targetDec
+}
+
+func MergeSaveDataDecoded(srcData, targetData []byte) []byte {
+	start, end := FindSaveBlockStartEnd(&srcData)
+	srcSaveBlock := srcData[start : end+1]
+
+	start, _ = FindSaveBlockStartEnd(&targetData)
+
+	for i, char := range srcSaveBlock {
+		targetOffset := start + i
+
+		if targetOffset >= len(targetData) {
+			targetData = append(targetData, char)
+		} else {
+			targetData[targetOffset] = char
+		}
+	}
+	return targetData
 }
 
 func check(e error) {

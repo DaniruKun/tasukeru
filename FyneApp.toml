@@ -4,5 +4,5 @@ Website = "https://danpetrov.xyz/tasukeru"
   Icon = "Tasukeru.png"
   Name = "Tasukeru"
   ID = "com.tasukeru.app"
-  Version = "1.1.0"
-  Build = 17
+  Version = "1.1.1"
+  Build = 24

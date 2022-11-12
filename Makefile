@@ -2,6 +2,8 @@ BINARY_NAME := tasukeru
 
 .PHONY: all build compile-cli compile-windows compile-mac clean run format
 
+.DEFAULT: build
+
 build:
 	@echo "Building tasukeru build for the current platform"
 	go build -o bin/${BINARY_NAME} -ldflags '-s -w' .
@@ -15,11 +17,15 @@ compile-windows: FyneApp.toml
 	@echo "Building native Windows cross compiled build"
 	fyne-cross windows -ldflags '-s -w'
 
-compile-mac: FyneApp.toml
+compile-mac:
 	@echo "Building native Mac app"
-	fyne-cross darwin -ldflags '-s -w'
+	fyne package -os darwin -icon Tasukeru.png --release
 
-all: compile-cli compile-windows compile-mac
+compile-linux: FyneApp.toml
+	@echo "Building native Linux app"
+	fyne-cross linux -ldflags '-s -w'	
+
+all: compile-cli compile-windows compile-mac compile-linux
 
 clean:
 	go clean

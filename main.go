@@ -8,7 +8,7 @@ import (
 	"github.com/Songmu/prompter"
 )
 
-const Version = "1.1.0"
+const Version = "1.1.1"
 const HomePage = "https://danpetrov.xyz/tasukeru"
 
 func check(e error) {
