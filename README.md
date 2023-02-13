@@ -1,5 +1,7 @@
 # HoloCure Save File Transfer Tool
 
+**NOTE: Tasukeru has now been deprecated, please use the normal HoloCure save file transfer now in version 0.5**
+
 ![Tasukeru GUI demo](https://i.imgur.com/HDohzzB.png)
 
 This is a small tool to import [HoloCure](https://kay-yu.itch.io/holocure) save files from one PC to another.
